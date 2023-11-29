@@ -5,6 +5,9 @@ const route = express.Router();
 
 route.post("/", async (req, res) => {
   const user = req.body;
+  if (Object.keys(user).length === 0) {
+    return res.status(404).send({ success: false });
+  }
   const token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: "1h" });
   res
     .cookie("token", token, {

@@ -4,6 +4,8 @@ const cookieParser = require("cookie-parser");
 const logger = require("./src/middleware/logger");
 require("dotenv").config();
 
+const jwtRoute = require("./src/routes/jwtAuth");
+
 const port = process.env.PORT || 5001;
 
 const app = express();
@@ -23,6 +25,8 @@ app.get("/", logger, (req, res) => {
     message: "Server is running",
   });
 });
+
+app.use("/jwt", jwtRoute);
 
 app.listen(port, () => {
   console.log(`Server is running on port:${port}`);

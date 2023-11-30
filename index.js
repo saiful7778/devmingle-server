@@ -5,6 +5,7 @@ const logger = require("./src/middleware/logger");
 require("dotenv").config();
 
 const jwtRoute = require("./src/routes/jwtAuth");
+const userRoute = require("./src/routes/user");
 
 const port = process.env.PORT || 5001;
 
@@ -12,7 +13,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173", "https://devmingle-forum.web.app"],
     credentials: true,
     methods: ["GET", "POST", "DELETE", "PATCH", "OPTIONS"],
   })
@@ -27,6 +28,7 @@ app.get("/", logger, (req, res) => {
 });
 
 app.use("/jwt", jwtRoute);
+app.use("/user", userRoute);
 
 app.listen(port, () => {
   console.log(`Server is running on port:${port}`);

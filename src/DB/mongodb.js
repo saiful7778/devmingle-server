@@ -13,5 +13,6 @@ const client = new MongoClient(uri, {
 
 const devMingleDB = client.db("devMingleDB");
 const userColl = devMingleDB.collection("users");
+const postColl = devMingleDB.collection("posts");
 
-module.exports = { userColl };
+module.exports = { userColl, postColl };

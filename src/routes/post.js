@@ -1,8 +1,10 @@
 const express = require("express");
 const { postColl } = require("../DB/mongodb");
+const verifyToken = require("../middleware/verifyToken");
+const verifyTokenAndKey = require("../middleware/verifyTokenKey");
 const route = express.Router();
 
-route.post("/", async (req, res) => {
+route.post("/", verifyToken, verifyTokenAndKey, async (req, res) => {
   try {
     const postData = req.body;
     const result = await postColl.insertOne(postData);

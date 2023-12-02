@@ -68,7 +68,7 @@ route.get("/all", async (req, res) => {
         {
           $addFields: {
             voteDifference: {
-              $subtract: ["$vouteCount.upVote", "$vouteCount.downVote"],
+              $subtract: ["$voteCount.upVote", "$voteCount.downVote"],
             },
           },
         },
@@ -81,12 +81,6 @@ route.get("/all", async (req, res) => {
       .toArray();
 
     const totalCount = await postColl.estimatedDocumentCount();
-    // const result = await postColl
-    //   .find()
-    //   .skip(skip)
-    //   .limit(size)
-    //   .sort({ postTime: -1 })
-    //   .toArray();
     res.status(200).send({ result, count: totalCount });
   } catch (err) {
     res.status(500).send("an error occurred");
@@ -98,6 +92,24 @@ route.get("/:postID", async (req, res) => {
     const postID = req.params.postID;
     const query = { _id: new ObjectId(postID) };
     const result = await postColl.findOne(query);
+    res.status(200).send(result);
+  } catch (err) {
+    res.status(500).send("an error occurred");
+  }
+});
+
+route.patch("/:postID", verifyToken, verifyTokenAndKey, async (req, res) => {
+  try {
+    const body = req.body;
+    const postID = req.params.postID;
+    const filter = { _id: new ObjectId(postID) };
+    const updated = {
+      $set: {
+        "voteCount.upVote": body?.upVote,
+        "voteCount.downVote": body?.downVote,
+      },
+    };
+    const result = await postColl.updateOne(filter, updated);
     res.status(200).send(result);
   } catch (err) {
     res.status(500).send("an error occurred");

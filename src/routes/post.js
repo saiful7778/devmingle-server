@@ -1,5 +1,5 @@
 const express = require("express");
-const { postColl, userColl } = require("../DB/mongodb");
+const { postColl, userColl, commentsColl } = require("../DB/mongodb");
 const verifyToken = require("../middleware/verifyToken");
 const verifyTokenAndKey = require("../middleware/verifyTokenKey");
 const { ObjectId } = require("mongodb");
@@ -110,6 +110,32 @@ route.patch("/:postID", verifyToken, verifyTokenAndKey, async (req, res) => {
       },
     };
     const result = await postColl.updateOne(filter, updated);
+    res.status(200).send(result);
+  } catch (err) {
+    res.status(500).send("an error occurred");
+  }
+});
+
+route.post("/comment", verifyToken, verifyTokenAndKey, async (req, res) => {
+  try {
+    const body = req.body;
+    const filter = { _id: new ObjectId(body.postID) };
+    const updateCommentCount = await postColl.updateOne(filter, {
+      $inc: { "comment.count": 1 },
+    });
+    const result = await commentsColl.insertOne(body);
+    res.status(201).send({ result, updateCommentCount });
+  } catch (err) {
+    res.status(500).send("an error occurred");
+  }
+});
+
+route.get("/:postID/comments", async (req, res) => {
+  try {
+    const postID = req.params.postID;
+    const { title } = req.query;
+    const filter = { postID: postID, title: title };
+    const result = await commentsColl.find(filter).toArray();
     res.status(200).send(result);
   } catch (err) {
     res.status(500).send("an error occurred");

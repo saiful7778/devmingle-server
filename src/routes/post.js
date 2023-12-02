@@ -27,4 +27,15 @@ route.post("/:userID", verifyToken, verifyTokenAndKey, async (req, res) => {
   }
 });
 
+route.get("/", verifyToken, verifyTokenAndKey, async (req, res) => {
+  try {
+    const { email } = req.query;
+    const result = await postColl.find({ "author.email": email }).toArray();
+
+    res.status(200).send(result);
+  } catch (err) {
+    res.status(500).send("an error occurred");
+  }
+});
+
 module.exports = route;

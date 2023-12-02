@@ -1,5 +1,7 @@
 const express = require("express");
 const { userColl } = require("../DB/mongodb");
+const verifyToken = require("../middleware/verifyToken");
+const verifyTokenAndKey = require("../middleware/verifyTokenKey");
 const route = express.Router();
 
 route.post("/", async (req, res) => {
@@ -12,7 +14,7 @@ route.post("/", async (req, res) => {
   }
 });
 
-route.get("/:userID", async (req, res) => {
+route.get("/:userID", verifyToken, verifyTokenAndKey, async (req, res) => {
   try {
     const userID = req.params.userID;
     const result = await userColl.findOne({ userToken: userID });

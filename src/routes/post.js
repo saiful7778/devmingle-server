@@ -93,4 +93,15 @@ route.get("/all", async (req, res) => {
   }
 });
 
+route.get("/:postID", async (req, res) => {
+  try {
+    const postID = req.params.postID;
+    const query = { _id: new ObjectId(postID) };
+    const result = await postColl.findOne(query);
+    res.status(200).send(result);
+  } catch (err) {
+    res.status(500).send("an error occurred");
+  }
+});
+
 module.exports = route;

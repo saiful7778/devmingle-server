@@ -38,7 +38,8 @@ route.delete("/:postID", verifyToken, verifyTokenAndKey, async (req, res) => {
       { $inc: { postCount: -1 } }
     );
     const result = await postColl.deleteOne(filter);
-    res.send({ result, decrementPostCount });
+
+    res.status(200).send({ result, decrementPostCount });
   } catch (err) {
     res.status(500).send("an error occurred");
   }
@@ -50,6 +51,43 @@ route.get("/", verifyToken, verifyTokenAndKey, async (req, res) => {
     const result = await postColl.find({ "author.email": email }).toArray();
 
     res.status(200).send(result);
+  } catch (err) {
+    res.status(500).send("an error occurred");
+  }
+});
+
+route.get("/all", async (req, res) => {
+  try {
+    const page = parseInt(req.query?.page);
+    const size = parseInt(req.query?.size);
+
+    const skip = page * size;
+
+    const result = await postColl
+      .aggregate([
+        {
+          $addFields: {
+            voteDifference: {
+              $subtract: ["$vouteCount.upVote", "$vouteCount.downVote"],
+            },
+          },
+        },
+        {
+          $sort: { voteDifference: -1 },
+        },
+      ])
+      .skip(skip)
+      .limit(size)
+      .toArray();
+
+    const totalCount = await postColl.estimatedDocumentCount();
+    // const result = await postColl
+    //   .find()
+    //   .skip(skip)
+    //   .limit(size)
+    //   .sort({ postTime: -1 })
+    //   .toArray();
+    res.status(200).send({ result, count: totalCount });
   } catch (err) {
     res.status(500).send("an error occurred");
   }

@@ -76,4 +76,25 @@ route.patch(
   }
 );
 
+route.get(
+  "/admin/:userID",
+  verifyToken,
+  verifyTokenAndKey,
+  async (req, res) => {
+    try {
+      const userID = req.params.userID;
+      const { email } = req.query;
+      const query = { userToken: userID, userEmail: email };
+      const user = await userColl.findOne(query);
+      let admin = false;
+      if (user) {
+        admin = user?.userRole === "admin";
+      }
+      res.status(200).send({ admin });
+    } catch (err) {
+      res.status(500).send("an error occurred");
+    }
+  }
+);
+
 module.exports = route;

@@ -7,6 +7,7 @@ require("dotenv").config();
 const jwtRoute = require("./src/routes/jwtAuth");
 const userRoute = require("./src/routes/user");
 const postRoute = require("./src/routes/post");
+const recaptchaRoute = require("./src/routes/reCaptcha");
 
 const port = process.env.PORT || 5001;
 
@@ -31,6 +32,7 @@ app.get("/", logger, (req, res) => {
 app.use("/jwt", jwtRoute);
 app.use("/user", userRoute);
 app.use("/post", postRoute);
+app.use("/captcha", recaptchaRoute);
 
 app.listen(port, () => {
   console.log(`Server is running on port:${port}`);

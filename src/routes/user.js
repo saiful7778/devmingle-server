@@ -47,11 +47,33 @@ route.delete("/:userID", verifyToken, verifyTokenAndKey, async (req, res) => {
     const userID = req.params.userID;
     const { uid } = req.query;
     const query = { _id: new ObjectId(userID), userToken: uid };
-    const result = await userColl.findOne(query);
+    const result = await userColl.deleteOne(query);
     res.status(200).send(result);
   } catch (err) {
     res.status(500).send("an error occurred");
   }
 });
+
+route.patch(
+  "/admin/:userID",
+  verifyToken,
+  verifyTokenAndKey,
+  async (req, res) => {
+    try {
+      const userID = req.params.userID;
+      const { uid } = req.query;
+      const filter = { _id: new ObjectId(userID), userToken: uid };
+      const updateRole = {
+        $set: { userRole: "admin" },
+      };
+      const result = await userColl.updateOne(filter, updateRole, {
+        upsert: true,
+      });
+      res.status(200).send(result);
+    } catch (err) {
+      res.status(500).send("an error occurred");
+    }
+  }
+);
 
 module.exports = route;

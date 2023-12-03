@@ -15,5 +15,6 @@ const devMingleDB = client.db("devMingleDB");
 const userColl = devMingleDB.collection("users");
 const postColl = devMingleDB.collection("posts");
 const commentsColl = devMingleDB.collection("comments");
+const reportColl = devMingleDB.collection("reports");
 
-module.exports = { userColl, postColl, commentsColl };
+module.exports = { userColl, postColl, commentsColl, reportColl };

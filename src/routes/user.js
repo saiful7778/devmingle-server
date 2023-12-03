@@ -7,7 +7,15 @@ const route = express.Router();
 route.post("/", async (req, res) => {
   try {
     const userData = req.body;
-    const result = await userColl.insertOne(userData);
+    const filter = { userEmail: userData.userEmail };
+    const insertUser = {
+      $set: {
+        ...userData,
+      },
+    };
+    const result = await userColl.updateOne(filter, insertUser, {
+      upsert: true,
+    });
     res.status(201).send(result);
   } catch (err) {
     res.status(500).send("an error occurred");

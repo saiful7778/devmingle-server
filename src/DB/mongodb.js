@@ -16,5 +16,12 @@ const userColl = devMingleDB.collection("users");
 const postColl = devMingleDB.collection("posts");
 const commentsColl = devMingleDB.collection("comments");
 const reportColl = devMingleDB.collection("reports");
+const announcementColl = devMingleDB.collection("announcement");
 
-module.exports = { userColl, postColl, commentsColl, reportColl };
+module.exports = {
+  userColl,
+  postColl,
+  commentsColl,
+  reportColl,
+  announcementColl,
+};

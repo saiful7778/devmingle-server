@@ -8,6 +8,7 @@ const {
 const verifyToken = require("../middleware/verifyToken");
 const verifyTokenAndKey = require("../middleware/verifyTokenKey");
 const { ObjectId } = require("mongodb");
+const verifyAdmin = require("../middleware/verifyAdmin");
 const route = express.Router();
 
 route.post("/", verifyToken, verifyTokenAndKey, async (req, res) => {
@@ -144,10 +145,10 @@ route.post(
   verifyTokenAndKey,
   async (req, res) => {
     try {
-      const commentID = req.params.commentID;
+      // const commentID = req.params.commentID;
       const body = req.body;
-      const data = { commentID, ...body };
-      const result = await reportColl.insertOne(data);
+      // const data = { commentID, ...body };
+      const result = await reportColl.insertOne(body);
       res.status(201).send(result);
     } catch (err) {
       res.status(500).send("an error occurred");
@@ -172,5 +173,39 @@ route.patch("/:postID", verifyToken, verifyTokenAndKey, async (req, res) => {
     res.status(500).send("an error occurred");
   }
 });
+
+// comment reports route if request user is admin
+route.get(
+  "/admin/report",
+  verifyToken,
+  verifyTokenAndKey,
+  verifyAdmin,
+  async (req, res) => {
+    try {
+      const result = await reportColl.find().toArray();
+      res.status(200).send(result);
+    } catch (err) {
+      res.status(500).send("an error occurred");
+    }
+  }
+);
+
+// delete report if request user is admin
+route.delete(
+  "/admin/report/:reportID",
+  verifyToken,
+  verifyTokenAndKey,
+  verifyAdmin,
+  async (req, res) => {
+    try {
+      const reportID = req.params.reportID;
+      const query = { _id: new ObjectId(reportID) };
+      const result = await reportColl.deleteOne(query);
+      res.status(200).send(result);
+    } catch (err) {
+      res.status(500).send("an error occurred");
+    }
+  }
+);
 
 module.exports = route;

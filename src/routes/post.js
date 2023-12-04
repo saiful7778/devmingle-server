@@ -66,11 +66,12 @@ route.get("/all", async (req, res) => {
   try {
     const page = parseInt(req.query?.page);
     const size = parseInt(req.query?.size);
+    const tag = req.query?.tag;
 
-    const skip = page * size;
+    let pipeline;
 
-    const result = await postColl
-      .aggregate([
+    if (tag === "all") {
+      pipeline = [
         {
           $addFields: {
             voteDifference: {
@@ -81,13 +82,55 @@ route.get("/all", async (req, res) => {
         {
           $sort: { voteDifference: -1 },
         },
-      ])
+      ];
+    } else {
+      pipeline = [
+        {
+          $addFields: {
+            voteDifference: {
+              $subtract: ["$voteCount.upVote", "$voteCount.downVote"],
+            },
+          },
+        },
+        {
+          $sort: { voteDifference: -1 },
+        },
+        {
+          $match: {
+            tag: {
+              $elemMatch: {
+                $eq: tag,
+              },
+            },
+          },
+        },
+      ];
+    }
+
+    const skip = page * size;
+
+    const result = await postColl
+      .aggregate(pipeline)
       .skip(skip)
       .limit(size)
       .toArray();
 
     const totalCount = await postColl.estimatedDocumentCount();
-    res.status(200).send({ result, count: totalCount });
+    res.status(200).send({ result, totalCount, count: result.length });
+  } catch (err) {
+    res.status(500).send("an error occurred");
+  }
+});
+
+route.get("/all/search", async (req, res) => {
+  try {
+    const query = req.query.q;
+    const filter = { title: new RegExp(query, "ig") };
+    const result = await postColl
+      .find(filter)
+      .project({ title: 1, _id: 1 })
+      .toArray();
+    res.status(200).send(result);
   } catch (err) {
     res.status(500).send("an error occurred");
   }

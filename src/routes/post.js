@@ -130,7 +130,7 @@ route.get("/all/search", async (req, res) => {
       .find(filter)
       .project({ title: 1, _id: 1 })
       .toArray();
-    res.status(200).send(result);
+    res.status(200).send(result.slice(0, 5));
   } catch (err) {
     res.status(500).send("an error occurred");
   }

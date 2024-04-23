@@ -12,8 +12,7 @@ import { captcha } from "./routes/reCaptcha.js";
 import payment from "./routes/payment.js";
 
 const dbUrl = process.env.DB_CONNECT;
-
-(async () => {
+const frontendUrl = process.env.FRONTEND_URL(async () => {
   try {
     console.log("connecting...");
     await connect(dbUrl);
@@ -28,7 +27,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["https://devmingle-forum.web.app", "http://localhost:5173"],
+    origin: [frontendUrl],
     methods: ["GET", "POST", "DELETE", "PATCH", "OPTIONS"],
   })
 );

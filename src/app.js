@@ -12,7 +12,7 @@ import { captcha } from "./routes/reCaptcha.js";
 import payment from "./routes/payment.js";
 
 const dbUrl = process.env.DB_CONNECT;
-const frontendUrl = process.env.FRONTEND_URL;
+const frontendUrl = process.env.FORNTEND_URL;
 
 (async () => {
   try {

@@ -70,7 +70,7 @@ setup `.env` file with those key
 ```
 ACCESS_TOKEN=
 SITE_SECRET=
-FRONTEND_URL=
+FORNTEND_URL=
 DB_CONNECT=
 SECRET_KEY=
 SECRET_IV=

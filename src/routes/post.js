@@ -15,8 +15,8 @@ const routeAll = Router();
 // get all user posts
 routeAll.get("/", verifyToken, verifyTokenAndKey, verifyUserID, (req, res) => {
   const userId = req.userId;
-  const page = parseInt(req.query?.page ?? 0);
-  const size = parseInt(req.query?.size ?? 5);
+  const page = parseInt(req.query?.page, 10) ?? 0;
+  const size = parseInt(req.query?.size, 10) ?? 5;
   const skip = page * size;
 
   serverHelper(async () => {
@@ -44,7 +44,11 @@ routeAll.get("/", verifyToken, verifyTokenAndKey, verifyUserID, (req, res) => {
     ];
 
     const totalCount = await postModel.find({ author: userId }, { _id: 1 });
-    const data = await postModel.aggregate(pipeline).limit(size).skip(skip);
+    const data = await postModel
+      .aggregate(pipeline)
+      .skip(skip)
+      .limit(size)
+      .exec();
 
     const updateData = data?.map((ele) => ({
       ...ele,
@@ -62,8 +66,8 @@ routeAll.get("/", verifyToken, verifyTokenAndKey, verifyUserID, (req, res) => {
 
 // get all posts
 routeAll.get("/all", (req, res) => {
-  const page = parseInt(req.query?.page ?? 0);
-  const size = parseInt(req.query?.size ?? 5);
+  const page = parseInt(req.query?.page, 10) ?? 0;
+  const size = parseInt(req.query?.size, 10) ?? 10;
   const tag = req.query?.tag;
   const skip = page * size;
   serverHelper(async () => {
@@ -101,6 +105,7 @@ routeAll.get("/all", (req, res) => {
                 _id: 0,
                 userName: 1,
                 userEmail: 1,
+                userPhoto: 1,
               },
             },
           ],
@@ -111,7 +116,7 @@ routeAll.get("/all", (req, res) => {
       },
     ];
 
-    if (typeof tag !== "undefined") {
+    if (typeof tag !== "undefined" && tag !== "all") {
       pipeline.push({
         $match: {
           tags: {
@@ -123,7 +128,11 @@ routeAll.get("/all", (req, res) => {
       });
     }
 
-    const data = await postModel.aggregate(pipeline).limit(size).skip(skip);
+    const data = await postModel
+      .aggregate(pipeline)
+      .skip(skip)
+      .limit(size)
+      .exec();
 
     const updateData = data?.map((ele) => ({
       ...ele,
@@ -204,13 +213,17 @@ route.get("/:postId", (req, res) => {
   const postId = decrypt(req.params.postId);
 
   serverHelper(async () => {
-    const data = await postModel
-      .findOne({ _id: postId }, { __v: 0 })
-      .populate({ path: "author", select: ["userName", "userEmail"] });
+    const data = await postModel.findOne({ _id: postId }, { __v: 0 }).populate({
+      path: "author",
+      select: ["userName", "userEmail", "userImage"],
+    });
 
     const comments = await commentModel
       .find({ post: data.id }, { __v: 0, post: 0 })
-      .populate({ path: "user", select: ["userName", "userEmail"] });
+      .populate({
+        path: "user",
+        select: ["userName", "userEmail", "userImage"],
+      });
 
     const updateComments = comments?.map((ele) => ({
       id: encrypt(ele.id),

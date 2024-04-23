@@ -39,6 +39,8 @@ app.get("/", (req, res) => {
   res.send({
     success: true,
     message: `Server is running and request handle ${process.pid}`,
+    serverRuningOn:
+      process.env.RUN_ENV === "cluster" ? "cluster node" : "single node",
   });
 });
 

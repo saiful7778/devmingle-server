@@ -39,30 +39,65 @@ route.post(
 
 // create comment report
 route.post(
-  "/:postId/report",
+  "/:commentId/report",
   verifyToken,
   verifyTokenAndKey,
   verifyUserID,
   (req, res) => {
-    const postId = req.params.postId;
+    const commentId = decrypt(req.params.commentId);
     const userId = req.userId;
 
     const reportData = req.body;
-    const { comment, feedback } = reportData;
-    const check = inputCheck([comment, feedback], res);
+    const { feedback } = reportData;
+    const check = inputCheck([feedback], res);
     if (!check) {
       return;
     }
     serverHelper(async () => {
       await reportModel.create({
         feedback,
-        comment: decrypt(comment),
-        post: decrypt(postId),
+        comment: commentId,
         reportUser: userId,
       });
       res.status(201).send({
         success: true,
         message: "Report is created",
+      });
+    }, res);
+  }
+);
+
+// get all comments
+route.get(
+  "/all-comment/:postId",
+  verifyToken,
+  verifyTokenAndKey,
+  (req, res) => {
+    const postId = decrypt(req.params.postId);
+    serverHelper(async () => {
+      const data = await commentModel
+        .find({ post: postId }, { __v: 0 })
+        .populate({
+          path: "user",
+          select: ["userName", "userEmail", "userPhoto"],
+        });
+
+      const updateData = data?.map((ele) => ({
+        id: encrypt(ele.id),
+        details: ele.details,
+        user: {
+          id: encrypt(ele.user.id),
+          userName: ele.user.userName,
+          userEmail: ele.user.userEmail,
+          userPhoto: ele.user.userPhoto,
+        },
+        createdAt: ele.createdAt,
+        updatedAt: ele.updatedAt,
+      }));
+
+      res.status(200).send({
+        success: true,
+        data: updateData,
       });
     }, res);
   }
@@ -80,11 +115,17 @@ route.get(
         .find({}, { __v: 0 })
         .populate({
           path: "comment",
-          select: ["details", "user"],
-          populate: { path: "user", select: ["userName", "userEmail"] },
+          select: ["details", "user", "post", "createdAt"],
+          populate: [
+            { path: "post", select: "title" },
+            { path: "user", select: ["userEmail", "userName", "userPhoto"] },
+          ],
         })
-        .populate({ path: "post", select: "title" })
-        .populate({ path: "reportUser", select: ["userEmail", "userName"] });
+        .populate({
+          path: "reportUser",
+          select: ["userEmail", "userName", "userPhoto"],
+        })
+        .exec();
 
       const updateData = data?.map((ele) => ({
         id: encrypt(ele.id),
@@ -92,20 +133,23 @@ route.get(
         comment: {
           id: encrypt(ele.comment.id),
           details: ele.comment.details,
+          createdAt: ele.comment.createdAt,
           user: {
             id: encrypt(ele.comment.user.id),
             userName: ele.comment.user.userName,
             userEmail: ele.comment.user.userEmail,
+            userPhoto: ele.comment.user.userPhoto,
           },
-        },
-        post: {
-          id: encrypt(ele.post.id),
-          title: ele.post.title,
+          post: {
+            id: encrypt(ele.comment.post.id),
+            title: ele.comment.post.title,
+          },
         },
         reportUser: {
           id: encrypt(ele.reportUser.id),
           userName: ele.reportUser.userName,
           userEmail: ele.reportUser.userEmail,
+          userPhoto: ele.reportUser.userPhoto,
         },
         createdAt: ele.createdAt,
         updatedAt: ele.updatedAt,

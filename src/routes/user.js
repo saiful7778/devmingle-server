@@ -200,7 +200,7 @@ routeAll.get("/", verifyToken, verifyTokenAndKey, verifyAdmin, (req, res) => {
       id: encrypt(ele.id),
       userName: ele.userName,
       userEmail: ele.userEmail,
-      userToken: ele.userToken,
+      userPhoto: ele.userPhoto,
       userRole: ele.userRole,
       badge: ele.badge,
       postCount: ele.postCount,

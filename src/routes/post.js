@@ -15,8 +15,8 @@ const routeAll = Router();
 // get all user posts
 routeAll.get("/", verifyToken, verifyTokenAndKey, verifyUserID, (req, res) => {
   const userId = req.userId;
-  const page = parseInt(req.query?.page, 10) ?? 0;
-  const size = parseInt(req.query?.size, 10) ?? 5;
+  const page = parseInt(req.query?.page ?? 0);
+  const size = parseInt(req.query?.size ?? 5);
   const skip = page * size;
 
   serverHelper(async () => {
@@ -66,8 +66,8 @@ routeAll.get("/", verifyToken, verifyTokenAndKey, verifyUserID, (req, res) => {
 
 // get all posts
 routeAll.get("/all", (req, res) => {
-  const page = parseInt(req.query?.page, 10) ?? 0;
-  const size = parseInt(req.query?.size, 10) ?? 10;
+  const page = parseInt(req.query?.page ?? 0);
+  const size = parseInt(req.query?.size ?? 10);
   const tag = req.query?.tag;
   const skip = page * size;
   serverHelper(async () => {
@@ -215,14 +215,14 @@ route.get("/:postId", (req, res) => {
   serverHelper(async () => {
     const data = await postModel.findOne({ _id: postId }, { __v: 0 }).populate({
       path: "author",
-      select: ["userName", "userEmail", "userImage"],
+      select: ["userName", "userEmail", "userPhoto"],
     });
 
     const comments = await commentModel
       .find({ post: data.id }, { __v: 0, post: 0 })
       .populate({
         path: "user",
-        select: ["userName", "userEmail", "userImage"],
+        select: ["userName", "userEmail", "userPhoto"],
       });
 
     const updateComments = comments?.map((ele) => ({
@@ -231,6 +231,7 @@ route.get("/:postId", (req, res) => {
         id: encrypt(ele.user.id),
         userName: ele.user.userName,
         userEmail: ele.user.userEmail,
+        userPhoto: ele.user?.userPhoto,
       },
       details: ele.details,
       createdAt: ele.createdAt,
@@ -248,6 +249,7 @@ route.get("/:postId", (req, res) => {
           id: encrypt(data.author.id),
           userName: data.author.userName,
           userEmail: data.author.userEmail,
+          userPhoto: data.author?.userPhoto,
         },
         comments: updateComments,
         commentCount: data.commentCount,

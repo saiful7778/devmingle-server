@@ -45,7 +45,7 @@ routeAll.get("/", (req, res) => {
   serverHelper(async () => {
     const data = await announcementModel
       .find({}, { __v: 0 })
-      .populate("author", ["userName", "userEmail"]);
+      .populate("author", ["userName", "userEmail", "userPhoto"]);
 
     const updateData = data?.map((ele) => ({
       id: encrypt(ele.id),
@@ -55,6 +55,7 @@ routeAll.get("/", (req, res) => {
         id: encrypt(ele.author.id),
         userName: ele.author.userName,
         userEmail: ele.author.userEmail,
+        userPhoto: ele.author.userPhoto,
       },
     }));
 

@@ -74,11 +74,6 @@ const reportSchema = new Schema(
       type: String,
       required: [true, "Feedback is required"],
     },
-    post: {
-      type: Schema.Types.ObjectId,
-      ref: "post",
-      required: true,
-    },
     reportUser: {
       type: Schema.Types.ObjectId,
       ref: "user",

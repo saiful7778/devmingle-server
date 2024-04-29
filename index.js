@@ -1,4 +1,4 @@
-import app from "./src/app.js";
+import mainApp from "./src/app.js";
 import cluster from "node:cluster";
 import { availableParallelism } from "node:os";
 import process from "node:process";
@@ -21,6 +21,7 @@ if (process.env.RUN_ENV === "cluster") {
     });
   } else {
     const port = process.env.PORT ?? 5001;
+    const app = mainApp();
 
     app.listen(port, () => {
       console.log("Server is running on port:", port);
@@ -28,6 +29,7 @@ if (process.env.RUN_ENV === "cluster") {
   }
 } else {
   const port = process.env.PORT ?? 5001;
+  const app = mainApp();
 
   app.listen(port, () => {
     console.log("Server is running on port:", port);

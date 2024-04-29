@@ -12,7 +12,6 @@ import { captcha } from "./routes/reCaptcha.js";
 import payment from "./routes/payment.js";
 
 const dbUrl = process.env.DB_CONNECT;
-const frontendUrl = process.env.FORNTEND_URL;
 
 (async () => {
   try {
@@ -25,34 +24,38 @@ const frontendUrl = process.env.FORNTEND_URL;
   }
 })();
 
-const app = express();
+export default function mainApp() {
+  const app = express();
 
-app.use(
-  cors({
-    origin: [frontendUrl],
-    methods: ["GET", "POST", "DELETE", "PATCH", "OPTIONS"],
-  })
-);
-app.use(express.json());
+  const frontendUrl = process.env.FORNTEND_URL;
 
-app.get("/", (req, res) => {
-  res.send({
-    success: true,
-    message: `Server is running and request handle ${process.pid}`,
-    serverRuningOn:
-      process.env.RUN_ENV === "cluster" ? "cluster node" : "single node",
+  app.use(
+    cors({
+      origin: [frontendUrl],
+      methods: ["GET", "POST", "DELETE", "PATCH", "OPTIONS"],
+    })
+  );
+  app.use(express.json());
+
+  app.get("/", (req, res) => {
+    res.send({
+      success: true,
+      message: `Server is running and request handle ${process.pid}`,
+      serverRuningOn:
+        process.env.RUN_ENV === "cluster" ? "cluster node" : "single node",
+    });
   });
-});
 
-app.use("/captcha", captcha);
-app.use("/authentication", authentication);
-app.use("/user", user);
-app.use("/users", users);
-app.use("/announcement", announcement);
-app.use("/announcements", announcements);
-app.use("/payment", payment);
-app.use("/post", post);
-app.use("/posts", posts);
-app.use("/post/comment", comment);
+  app.use("/captcha", captcha);
+  app.use("/authentication", authentication);
+  app.use("/user", user);
+  app.use("/users", users);
+  app.use("/announcement", announcement);
+  app.use("/announcements", announcements);
+  app.use("/payment", payment);
+  app.use("/post", post);
+  app.use("/posts", posts);
+  app.use("/post/comment", comment);
 
-export default app;
+  return app;
+}

@@ -46,14 +46,6 @@ export default function mainApp() {
     });
   });
 
-  // not found route
-  app.get("*", (req, res) => {
-    res.status(404).send({
-      success: false,
-      message: "Not found!",
-    });
-  });
-
   app.use("/captcha", captcha);
   app.use("/authentication", authentication);
   app.use("/user", user);
@@ -64,6 +56,14 @@ export default function mainApp() {
   app.use("/post", post);
   app.use("/posts", posts);
   app.use("/post/comment", comment);
+
+  // not found route
+  app.get("*", (req, res) => {
+    res.status(404).send({
+      success: false,
+      message: "Not found!",
+    });
+  });
 
   return app;
 }

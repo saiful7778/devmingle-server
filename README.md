@@ -75,7 +75,7 @@ DB_CONNECT=
 SECRET_KEY=
 SECRET_IV=
 ECNRYPTION_METHOD=
-RUN_ENV=
+RUN_ENV= single | cluster
 ```
 
 ```

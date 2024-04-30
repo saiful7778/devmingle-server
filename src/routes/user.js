@@ -106,6 +106,27 @@ route.get(
   }
 );
 
+// get single user data route
+route.get("/data/public/:userId", (req, res) => {
+  const userId = decrypt(req.params.userId);
+  serverHelper(async () => {
+    const data = await userModel.findById(userId, { __v: 0 });
+
+    res.status(200).send({
+      success: true,
+      data: {
+        id: encrypt(data.id),
+        userName: data.userName,
+        userEmail: data.userEmail,
+        userPhoto: data.userPhoto,
+        userRole: data.userRole,
+        badge: data.badge,
+        postCount: data.postCount,
+      },
+    });
+  }, res);
+});
+
 // make any user role admin route if request user is admin
 route.patch(
   "/admin/make_admin/:userID",

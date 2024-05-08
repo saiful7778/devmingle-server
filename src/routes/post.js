@@ -64,6 +64,57 @@ routeAll.get("/", verifyToken, verifyTokenAndKey, verifyUserID, (req, res) => {
   }, res);
 });
 
+routeAll.get("/public/:userId", (req, res) => {
+  const userId = decrypt(req.params.userId);
+  const page = parseInt(req.query?.page ?? 0);
+  const size = parseInt(req.query?.size ?? 5);
+  const skip = page * size;
+
+  serverHelper(async () => {
+    let pipeline = [
+      {
+        $match: {
+          author: new Types.ObjectId(userId),
+        },
+      },
+      {
+        $addFields: {
+          id: {
+            $toString: "$_id",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          __v: 0,
+          des: 0,
+          author: 0,
+        },
+      },
+    ];
+
+    const totalCount = await postModel.find({ author: userId }, { _id: 1 });
+    const data = await postModel
+      .aggregate(pipeline)
+      .skip(skip)
+      .limit(size)
+      .exec();
+
+    const updateData = data?.map((ele) => ({
+      ...ele,
+      id: encrypt(ele.id),
+    }));
+
+    res.status(200).send({
+      success: true,
+      totalCount: totalCount.length,
+      count: data.length,
+      data: updateData,
+    });
+  }, res);
+});
+
 // get all posts
 routeAll.get("/all", (req, res) => {
   const page = parseInt(req.query?.page ?? 0);

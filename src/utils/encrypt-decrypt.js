@@ -1,16 +1,15 @@
 import crypto from "crypto";
-import dotenv from "dotenv";
-dotenv.config();
+import getEnvVar from "./env-var.js";
 
-const encryptionMethod = process.env.ECNRYPTION_METHOD;
+const encryptionMethod = getEnvVar("ECNRYPTION_METHOD");
 const key = crypto
   .createHash("sha512")
-  .update(process.env.SECRET_KEY)
+  .update(getEnvVar("SECRET_KEY"))
   .digest("hex")
   .substring(0, 32);
 const iv = crypto
   .createHash("sha512")
-  .update(process.env.SECRET_IV)
+  .update(getEnvVar("SECRET_IV"))
   .digest("hex")
   .substring(0, 16);
 

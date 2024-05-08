@@ -1,13 +1,12 @@
-import express from "express";
+import { Router } from "express";
 import jwt from "jsonwebtoken";
 import serverHelper from "../utils/server-helper.js";
-import dotenv from "dotenv";
 import { userModel } from "../models/userModel.js";
 import { encrypt } from "../utils/encrypt-decrypt.js";
 import inputCheck from "../utils/input-check.js";
-dotenv.config();
+import getEnvVar from "../utils/env-var.js";
 
-const route = express.Router();
+const route = Router();
 
 // login route
 route.post("/login", (req, res) => {
@@ -52,7 +51,7 @@ route.post("/login", (req, res) => {
         userRole: user.userRole,
         badge: user.badge,
       },
-      process.env.ACCESS_TOKEN,
+      getEnvVar("ACCESS_TOKEN"),
       { expiresIn: "1h" }
     );
     res.status(200).send({ success: true, token, userData });

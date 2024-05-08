@@ -6,11 +6,10 @@ import serverHelper from "../utils/server-helper.js";
 import inputCheck from "../utils/input-check.js";
 import Stripe from "stripe";
 // const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-import dotenv from "dotenv";
-dotenv.config();
+import getEnvVar from "../utils/env-var.js";
 
 const route = Router();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(getEnvVar("STRIPE_SECRET_KEY"));
 
 route.post(
   "/create_payment_intent",

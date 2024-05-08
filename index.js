@@ -2,10 +2,9 @@ import mainApp from "./src/app.js";
 import cluster from "node:cluster";
 import { availableParallelism } from "node:os";
 import process from "node:process";
-import dotenv from "dotenv";
-dotenv.config();
+import getEnvVar from "./src/utils/env-var.js";
 
-if (process.env.RUN_ENV === "cluster") {
+if (getEnvVar("RUN_ENV") === "cluster") {
   const numCPUs = availableParallelism();
 
   if (cluster.isPrimary) {
@@ -20,7 +19,7 @@ if (process.env.RUN_ENV === "cluster") {
       console.log(`worker ${worker.process.pid} died`);
     });
   } else {
-    const port = process.env.PORT ?? 5001;
+    const port = getEnvVar("PORT") ?? 5001;
     const app = mainApp();
 
     app.listen(port, () => {
@@ -28,7 +27,7 @@ if (process.env.RUN_ENV === "cluster") {
     });
   }
 } else {
-  const port = process.env.PORT ?? 5001;
+  const port = getEnvVar("PORT") ?? 5001;
   const app = mainApp();
 
   app.listen(port, () => {

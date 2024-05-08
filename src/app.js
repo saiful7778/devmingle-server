@@ -1,8 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { connect } from "mongoose";
-import dotenv from "dotenv";
-dotenv.config();
+import process from "node:process";
 import users, { user } from "./routes/user.js";
 import { authentication } from "./routes/authentication.js";
 import posts, { post } from "./routes/post.js";
@@ -10,8 +9,9 @@ import announcements, { announcement } from "./routes/announcement.js";
 import { comment } from "./routes/comment.js";
 import { captcha } from "./routes/reCaptcha.js";
 import payment from "./routes/payment.js";
+import getEnvVar from "./utils/env-var.js";
 
-const dbUrl = process.env.DB_CONNECT;
+const dbUrl = getEnvVar("DB_CONNECT");
 
 (async () => {
   try {
@@ -27,11 +27,12 @@ const dbUrl = process.env.DB_CONNECT;
 export default function mainApp() {
   const app = express();
 
-  const frontendUrl = process.env.FORNTEND_URL;
+  const frontendUrl = getEnvVar("FORNTEND_URL");
+  const accessSite = [frontendUrl, "http://localhost:5173"];
 
   app.use(
     cors({
-      origin: [frontendUrl],
+      origin: accessSite,
       methods: ["GET", "POST", "DELETE", "PATCH", "OPTIONS"],
     })
   );
@@ -42,7 +43,7 @@ export default function mainApp() {
       success: true,
       message: `Server is running and request handle ${process.pid}`,
       serverRuningOn:
-        process.env.RUN_ENV === "cluster" ? "cluster node" : "single node",
+        getEnvVar("RUN_ENV") === "cluster" ? "cluster node" : "single node",
     });
   });
 
@@ -56,6 +57,10 @@ export default function mainApp() {
   app.use("/post", post);
   app.use("/posts", posts);
   app.use("/post/comment", comment);
+
+  app.get("/frontend", (req, res) => {
+    res.status(200).send({ success: true, data: accessSite });
+  });
 
   // not found route
   app.get("*", (req, res) => {

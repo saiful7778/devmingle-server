@@ -149,28 +149,6 @@ route.patch(
   }
 );
 
-route.patch(
-  "/badge-update",
-  verifyToken,
-  verifyTokenAndKey,
-  verifyUserId,
-  (req, res) => {
-    const userId = req.userId;
-    serverHelper(async () => {
-      const data = await userModel.updateOne(
-        { _id: userId },
-        {
-          $set: {
-            badge: "gold",
-          },
-        },
-        { upsert: true }
-      );
-      res.status(200).send({ success: true, data });
-    }, res);
-  }
-);
-
 // delete a user account if requested user is admin
 route.delete(
   "/admin/delete_account/:userID",

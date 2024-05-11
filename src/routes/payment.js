@@ -48,7 +48,9 @@ route.patch("/", verifyToken, verifyTokenAndKey, verifyUserID, (req, res) => {
     const data = await userModel.updateOne(
       { _id: userId },
       {
-        badge: "gold",
+        $set: {
+          badge: "gold",
+        },
       },
       { upsert: true }
     );

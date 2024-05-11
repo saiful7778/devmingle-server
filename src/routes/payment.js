@@ -5,14 +5,14 @@ import verifyUserID from "../middleware/verifyUserID.js";
 import serverHelper from "../utils/server-helper.js";
 import inputCheck from "../utils/input-check.js";
 import Stripe from "stripe";
-// const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 import getEnvVar from "../utils/env-var.js";
+import { userModel } from "../models/userModel.js";
 
 const route = Router();
 const stripe = new Stripe(getEnvVar("STRIPE_SECRET_KEY"));
 
 route.post(
-  "/create_payment_intent",
+  "/create_intent",
   verifyToken,
   verifyTokenAndKey,
   verifyUserID,
@@ -41,5 +41,22 @@ route.post(
     }, res);
   }
 );
+
+route.patch("/", verifyToken, verifyTokenAndKey, verifyUserID, (req, res) => {
+  const userId = req.userId;
+  serverHelper(async () => {
+    const data = await userModel.updateOne(
+      { _id: userId },
+      {
+        badge: "gold",
+      },
+      { upsert: true }
+    );
+    res.status(200).send({
+      success: true,
+      data,
+    });
+  }, res);
+});
 
 export default route;

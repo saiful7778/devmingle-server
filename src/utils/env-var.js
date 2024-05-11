@@ -12,7 +12,6 @@ const envVars = {
   RUN_ENV: process.env.RUN_ENV,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   NODE_ENV: process.env.NODE_ENV,
-  PORT: process.env.PORT,
 };
 
 export default function getEnvVar(varName) {

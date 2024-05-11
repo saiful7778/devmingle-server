@@ -19,7 +19,7 @@ if (getEnvVar("RUN_ENV") === "cluster") {
       console.log(`worker ${worker.process.pid} died`);
     });
   } else {
-    const port = getEnvVar("PORT") ?? 5001;
+    const port = process.env.PORT ?? 5001;
     const app = mainApp();
 
     app.listen(port, () => {
@@ -27,7 +27,7 @@ if (getEnvVar("RUN_ENV") === "cluster") {
     });
   }
 } else {
-  const port = getEnvVar("PORT") ?? 5001;
+  const port = process.env.PORT ?? 5001;
   const app = mainApp();
 
   app.listen(port, () => {
